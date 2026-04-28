@@ -50,7 +50,7 @@ export default function LoginScreen() {
   }, [email, password]);
 
   const handleLogin = async () => {
-    console.log('Login attempt:', email);
+    console.log('Login attempt with email:', email);
     
     if (!email.trim()) {
       Alert.alert('Error', 'Please enter your email');
@@ -66,8 +66,9 @@ export default function LoginScreen() {
     console.log('Login result:', success);
     
     if (success) {
-      // Navigation will be handled by AuthGuard in _layout.tsx
       console.log('Login successful, navigation will be handled by AuthGuard');
+    } else {
+      console.log('Login failed:', authError);
     }
   };
 
@@ -119,6 +120,11 @@ export default function LoginScreen() {
                 <Text style={styles.subtitle}>
                   Sign in to continue exploring premium properties
                 </Text>
+                <View style={styles.demoCredentials}>
+                  <Text style={styles.demoTitle}>💡 Demo Login</Text>
+                  <Text style={styles.demoText}>Email: Any valid email (e.g., test@example.com)</Text>
+                  <Text style={styles.demoText}>Password: Any 6+ characters (e.g., password123)</Text>
+                </View>
               </Animated.View>
 
               <Animated.View
@@ -140,7 +146,7 @@ export default function LoginScreen() {
 
                 <Input
                   label="Password"
-                  placeholder="Enter your password"
+                  placeholder="Enter your password (min 6 chars)"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -255,6 +261,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#94a3b8',
     lineHeight: 24,
+    marginBottom: 16,
+  },
+  demoCredentials: {
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  demoTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#a78bfa',
+    marginBottom: 6,
+  },
+  demoText: {
+    fontSize: 12,
+    color: '#cbd5e1',
+    lineHeight: 18,
   },
   formContainer: {
     flex: 1,
