@@ -66,9 +66,13 @@ export default function LoginScreen() {
     console.log('Login result:', success);
     
     if (success) {
-      console.log('Login successful, navigation will be handled by AuthGuard');
+      console.log('Login successful, AuthGuard will handle navigation');
+      // Don't navigate here - let AuthGuard in _layout.tsx handle it
     } else {
       console.log('Login failed:', authError);
+      if (authError) {
+        Alert.alert('Login Failed', authError);
+      }
     }
   };
 
@@ -122,8 +126,9 @@ export default function LoginScreen() {
                 </Text>
                 <View style={styles.demoCredentials}>
                   <Text style={styles.demoTitle}>💡 Demo Login</Text>
-                  <Text style={styles.demoText}>Email: Any valid email (e.g., test@example.com)</Text>
-                  <Text style={styles.demoText}>Password: Any 6+ characters (e.g., password123)</Text>
+                  <Text style={styles.demoText}>Email: test@example.com</Text>
+                  <Text style={styles.demoText}>Password: test123</Text>
+                  <Text style={styles.demoNote}>Or use any email (6+ char password)</Text>
                 </View>
               </Animated.View>
 
@@ -280,6 +285,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#cbd5e1',
     lineHeight: 18,
+  },
+  demoNote: {
+    fontSize: 11,
+    color: '#94a3b8',
+    lineHeight: 16,
+    marginTop: 4,
+    fontStyle: 'italic',
   },
   formContainer: {
     flex: 1,

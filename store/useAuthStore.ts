@@ -83,10 +83,11 @@ const mockUserDatabase: Map<string, { email: string; password: string; user: Use
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false,
   authError: null,
 
   login: async (email: string, password: string) => {
+    console.log('[AUTH] Login started for:', email);
     set({ isLoading: true, authError: null });
     
     try {
@@ -96,17 +97,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email.trim())) {
+        console.log('[AUTH] Invalid email format');
         set({ authError: 'Please enter a valid email address', isLoading: false });
         return false;
       }
       
       // Validate password length
       if (!password || password.length < 6) {
+        console.log('[AUTH] Password too short');
         set({ authError: 'Password must be at least 6 characters', isLoading: false });
         return false;
       }
       
       const normalizedEmail = email.trim().toLowerCase();
+      console.log('[AUTH] Normalized email:', normalizedEmail);
       
       // Check if user exists in mock database
       const userRecord = mockUserDatabase.get(normalizedEmail);
@@ -114,13 +118,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       let loggedInUser: User;
       
       if (userRecord) {
+        console.log('[AUTH] User found in database');
         // User exists - verify password
         if (userRecord.password !== password) {
+          console.log('[AUTH] Password mismatch');
           set({ authError: 'Invalid email or password', isLoading: false });
           return false;
         }
         loggedInUser = userRecord.user;
       } else {
+        console.log('[AUTH] User not found, creating new user');
         // User doesn't exist - create new user dynamically (mock auto-registration)
         const nameParts = normalizedEmail.split('@')[0].split('.');
         const displayName = nameParts
@@ -147,9 +154,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           password: password,
           user: loggedInUser,
         });
+        console.log('[AUTH] New user created and added to database');
       }
       
-      console.log('Login successful:', loggedInUser.email);
+      console.log('[AUTH] Login successful for:', loggedInUser.email);
+      console.log('[AUTH] Setting authenticated state...');
       
       set({ 
         user: loggedInUser,
@@ -158,15 +167,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         authError: null,
       });
       
+      // Verify state was set
+      const currentState = get();
+      console.log('[AUTH] Current state after login:', {
+        isAuthenticated: currentState.isAuthenticated,
+        hasUser: !!currentState.user,
+        userEmail: currentState.user?.email,
+      });
+      
       return true;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[AUTH] Login error:', error);
       set({ authError: 'Login failed. Please try again.', isLoading: false });
       return false;
     }
   },
 
   signup: async (email: string, password: string, name: string, role: User['role']) => {
+    console.log('[AUTH] Signup started for:', email);
     set({ isLoading: true, authError: null });
     
     try {
@@ -176,26 +194,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email.trim())) {
+        console.log('[AUTH] Invalid email format');
         set({ authError: 'Please enter a valid email address', isLoading: false });
         return false;
       }
       
       // Validate password length
       if (!password || password.length < 6) {
+        console.log('[AUTH] Password too short');
         set({ authError: 'Password must be at least 6 characters', isLoading: false });
         return false;
       }
       
       // Validate name
       if (!name || name.trim().length < 2) {
+        console.log('[AUTH] Name too short');
         set({ authError: 'Please enter your full name', isLoading: false });
         return false;
       }
 
       const normalizedEmail = email.trim().toLowerCase();
+      console.log('[AUTH] Normalized email:', normalizedEmail);
       
       // Check if user already exists
       if (mockUserDatabase.has(normalizedEmail)) {
+        console.log('[AUTH] User already exists');
         set({ authError: 'An account with this email already exists', isLoading: false });
         return false;
       }
@@ -221,7 +244,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: newUser,
       });
       
-      console.log('Signup successful:', newUser.email);
+      console.log('[AUTH] Signup successful for:', newUser.email);
+      console.log('[AUTH] Setting authenticated state...');
       
       set({ 
         user: newUser,
@@ -230,16 +254,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         authError: null,
       });
       
+      // Verify state was set
+      const currentState = get();
+      console.log('[AUTH] Current state after signup:', {
+        isAuthenticated: currentState.isAuthenticated,
+        hasUser: !!currentState.user,
+        userEmail: currentState.user?.email,
+      });
+      
       return true;
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('[AUTH] Signup error:', error);
       set({ authError: 'Signup failed. Please try again.', isLoading: false });
       return false;
     }
   },
 
   logout: () => {
-    console.log('User logged out');
+    console.log('[AUTH] User logged out');
     set({ 
       user: null, 
       isAuthenticated: false,
@@ -248,17 +280,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   initializeAuth: async () => {
+    console.log('[AUTH] Initializing auth...');
     set({ isLoading: true });
     
     try {
       // Simulate checking stored auth token
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       // For demo, start logged out
-      console.log('Auth initialized: logged out');
+      console.log('[AUTH] Auth initialized: logged out');
       set({ isLoading: false, isAuthenticated: false, user: null });
     } catch (error) {
-      console.error('Auth initialization error:', error);
+      console.error('[AUTH] Auth initialization error:', error);
       set({ isLoading: false, isAuthenticated: false, user: null });
     }
   },
@@ -267,7 +300,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { user } = get();
     if (user) {
       const updatedUser = { ...user, ...updates };
-      console.log('Profile updated:', updatedUser.email);
+      console.log('[AUTH] Profile updated:', updatedUser.email);
       
       // Update in mock database
       const normalizedEmail = user.email.toLowerCase();

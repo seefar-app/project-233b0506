@@ -19,21 +19,32 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading) {
+      console.log('[GUARD] Still loading auth state...');
+      return;
+    }
 
     const inAuthGroup = segments[0] === '(auth)';
     const inTabsGroup = segments[0] === '(tabs)';
     const isOnboarding = segments.length === 0 || segments[0] === 'index';
 
-    console.log('Auth Guard:', { isAuthenticated, segments, inAuthGroup, inTabsGroup, isOnboarding });
+    console.log('[GUARD] Auth state:', { 
+      isAuthenticated, 
+      segments: segments.join('/'), 
+      inAuthGroup, 
+      inTabsGroup, 
+      isOnboarding 
+    });
 
     if (!isAuthenticated) {
       // User is not authenticated
       if (inTabsGroup) {
         // Trying to access protected tabs, redirect to login
+        console.log('[GUARD] Not authenticated, redirecting to login from tabs');
         router.replace('/(auth)/login');
       } else if (!inAuthGroup && !isOnboarding) {
         // Trying to access other protected routes, redirect to login
+        console.log('[GUARD] Not authenticated, redirecting to login from protected route');
         router.replace('/(auth)/login');
       }
       // If already in auth group or onboarding, do nothing
@@ -41,6 +52,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
       // User is authenticated
       if (inAuthGroup || isOnboarding) {
         // Already logged in, redirect to tabs
+        console.log('[GUARD] Authenticated, redirecting to tabs');
         router.replace('/(tabs)');
       }
       // If already in tabs or other protected routes, do nothing
