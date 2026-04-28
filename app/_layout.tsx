@@ -12,11 +12,7 @@ import '../global.css';
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
-  const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
-
-  useEffect(() => {
-    initializeAuth();
-  }, []);
+  const { isAuthenticated, isLoading } = useAuthStore();
 
   useEffect(() => {
     if (isLoading) {
@@ -96,24 +92,6 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen
-            name="property/[id]"
-            options={{
-              presentation: 'card',
-            }}
-          />
-          <Stack.Screen
-            name="listing/create"
-            options={{
-              presentation: 'modal',
-            }}
-          />
-          <Stack.Screen
-            name="chat/[id]"
-            options={{
-              presentation: 'card',
-            }}
-          />
         </Stack>
       </AuthGuard>
     </GestureHandlerRootView>

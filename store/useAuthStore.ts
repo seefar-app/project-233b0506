@@ -11,7 +11,6 @@ interface AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, role: User['role']) => Promise<boolean>;
   logout: () => void;
-  initializeAuth: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => void;
   clearError: () => void;
 }
@@ -277,23 +276,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isAuthenticated: false,
       authError: null,
     });
-  },
-
-  initializeAuth: async () => {
-    console.log('[AUTH] Initializing auth...');
-    set({ isLoading: true });
-    
-    try {
-      // Simulate checking stored auth token
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // For demo, start logged out
-      console.log('[AUTH] Auth initialized: logged out');
-      set({ isLoading: false, isAuthenticated: false, user: null });
-    } catch (error) {
-      console.error('[AUTH] Auth initialization error:', error);
-      set({ isLoading: false, isAuthenticated: false, user: null });
-    }
   },
 
   updateProfile: (updates: Partial<User>) => {
