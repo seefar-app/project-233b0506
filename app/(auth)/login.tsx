@@ -9,6 +9,7 @@ import {
   Pressable,
   Animated,
   ImageBackground,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -49,9 +50,24 @@ export default function LoginScreen() {
   }, [email, password]);
 
   const handleLogin = async () => {
-    const success = await login(email, password);
+    console.log('Login attempt:', email);
+    
+    if (!email.trim()) {
+      Alert.alert('Error', 'Please enter your email');
+      return;
+    }
+    
+    if (!password.trim()) {
+      Alert.alert('Error', 'Please enter your password');
+      return;
+    }
+    
+    const success = await login(email.trim(), password);
+    console.log('Login result:', success);
+    
     if (success) {
-      router.replace('/(tabs)');
+      // Navigation will be handled by AuthGuard in _layout.tsx
+      console.log('Login successful, navigation will be handled by AuthGuard');
     }
   };
 
@@ -79,6 +95,7 @@ export default function LoginScreen() {
                 { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
               ]}
               showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
             >
               <Pressable onPress={() => router.back()} style={styles.backButton}>
                 <Ionicons name="arrow-back" size={24} color="#f8fafc" />
@@ -118,6 +135,7 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   icon="mail-outline"
+                  editable={!isLoading}
                 />
 
                 <Input
@@ -127,6 +145,7 @@ export default function LoginScreen() {
                   onChangeText={setPassword}
                   secureTextEntry
                   icon="lock-closed-outline"
+                  editable={!isLoading}
                 />
 
                 <Pressable style={styles.forgotPassword}>
@@ -147,6 +166,7 @@ export default function LoginScreen() {
                   size="lg"
                   fullWidth
                   loading={isLoading}
+                  disabled={isLoading}
                 />
 
                 <View style={styles.dividerContainer}>
@@ -156,13 +176,13 @@ export default function LoginScreen() {
                 </View>
 
                 <View style={styles.socialButtons}>
-                  <Pressable style={styles.socialButton}>
+                  <Pressable style={styles.socialButton} disabled={isLoading}>
                     <Ionicons name="logo-google" size={24} color="#f8fafc" />
                   </Pressable>
-                  <Pressable style={styles.socialButton}>
+                  <Pressable style={styles.socialButton} disabled={isLoading}>
                     <Ionicons name="logo-apple" size={24} color="#f8fafc" />
                   </Pressable>
-                  <Pressable style={styles.socialButton}>
+                  <Pressable style={styles.socialButton} disabled={isLoading}>
                     <Ionicons name="logo-facebook" size={24} color="#f8fafc" />
                   </Pressable>
                 </View>
@@ -170,7 +190,7 @@ export default function LoginScreen() {
 
               <View style={styles.footer}>
                 <Text style={styles.footerText}>Don't have an account?</Text>
-                <Pressable onPress={handleSignUp}>
+                <Pressable onPress={handleSignUp} disabled={isLoading}>
                   <Text style={styles.footerLink}> Sign Up</Text>
                 </Pressable>
               </View>

@@ -8,6 +8,7 @@ import {
   ScrollView,
   Pressable,
   Animated,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -51,9 +52,29 @@ export default function SignupScreen() {
   }, [name, email, password]);
 
   const handleSignup = async () => {
-    const success = await signup(email, password, name, selectedRole);
+    console.log('Signup attempt:', email, name, selectedRole);
+    
+    if (!name.trim()) {
+      Alert.alert('Error', 'Please enter your full name');
+      return;
+    }
+    
+    if (!email.trim()) {
+      Alert.alert('Error', 'Please enter your email');
+      return;
+    }
+    
+    if (!password.trim()) {
+      Alert.alert('Error', 'Please enter a password');
+      return;
+    }
+    
+    const success = await signup(email.trim(), password, name.trim(), selectedRole);
+    console.log('Signup result:', success);
+    
     if (success) {
-      router.replace('/(tabs)');
+      // Navigation will be handled by AuthGuard in _layout.tsx
+      console.log('Signup successful, navigation will be handled by AuthGuard');
     }
   };
 
@@ -83,6 +104,7 @@ export default function SignupScreen() {
               { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
             ]}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             <Pressable onPress={() => router.back()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="#f8fafc" />
@@ -112,6 +134,7 @@ export default function SignupScreen() {
                 value={name}
                 onChangeText={setName}
                 icon="person-outline"
+                editable={!isLoading}
               />
 
               <Input
@@ -122,6 +145,7 @@ export default function SignupScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 icon="mail-outline"
+                editable={!isLoading}
               />
 
               <Input
@@ -131,6 +155,7 @@ export default function SignupScreen() {
                 onChangeText={setPassword}
                 secureTextEntry
                 icon="lock-closed-outline"
+                editable={!isLoading}
               />
 
               <View style={styles.roleSection}>
@@ -144,6 +169,7 @@ export default function SignupScreen() {
                         selectedRole === role.value && styles.roleOptionSelected,
                       ]}
                       onPress={() => setSelectedRole(role.value)}
+                      disabled={isLoading}
                     >
                       <Text style={styles.roleIcon}>{role.icon}</Text>
                       <Text
@@ -179,6 +205,7 @@ export default function SignupScreen() {
                 size="lg"
                 fullWidth
                 loading={isLoading}
+                disabled={isLoading}
               />
 
               <Text style={styles.termsText}>
@@ -190,7 +217,7 @@ export default function SignupScreen() {
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>Already have an account?</Text>
-              <Pressable onPress={handleLogin}>
+              <Pressable onPress={handleLogin} disabled={isLoading}>
                 <Text style={styles.footerLink}> Sign In</Text>
               </Pressable>
             </View>

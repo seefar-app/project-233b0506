@@ -41,28 +41,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock validation
-      if (!email.includes('@')) {
+      if (!email || !email.includes('@')) {
         set({ authError: 'Please enter a valid email address', isLoading: false });
         return false;
       }
       
-      if (password.length < 6) {
+      if (!password || password.length < 6) {
         set({ authError: 'Password must be at least 6 characters', isLoading: false });
         return false;
       }
       
       // Mock successful login
+      const loggedInUser = { ...mockUser, email };
+      console.log('Login successful:', loggedInUser.email);
+      
       set({ 
-        user: { ...mockUser, email },
+        user: loggedInUser,
         isAuthenticated: true, 
         isLoading: false,
         authError: null,
       });
+      
       return true;
     } catch (error) {
+      console.error('Login error:', error);
       set({ authError: 'Login failed. Please try again.', isLoading: false });
       return false;
     }
@@ -72,29 +77,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, authError: null });
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (!email.includes('@')) {
+      // Validation
+      if (!email || !email.includes('@')) {
         set({ authError: 'Please enter a valid email address', isLoading: false });
         return false;
       }
       
-      if (password.length < 6) {
+      if (!password || password.length < 6) {
         set({ authError: 'Password must be at least 6 characters', isLoading: false });
         return false;
       }
       
-      if (name.length < 2) {
+      if (!name || name.trim().length < 2) {
         set({ authError: 'Please enter your full name', isLoading: false });
         return false;
       }
 
       const newUser: User = {
         id: Crypto.randomUUID(),
-        email,
+        email: email.trim(),
         phone: '',
-        name,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=8b5cf6&color=fff&size=200`,
+        name: name.trim(),
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name.trim())}&background=8b5cf6&color=fff&size=200`,
         role,
         verified: false,
         rating: 0,
@@ -103,20 +110,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         createdAt: new Date(),
       };
       
+      console.log('Signup successful:', newUser.email);
+      
       set({ 
         user: newUser,
         isAuthenticated: true, 
         isLoading: false,
         authError: null,
       });
+      
       return true;
     } catch (error) {
+      console.error('Signup error:', error);
       set({ authError: 'Signup failed. Please try again.', isLoading: false });
       return false;
     }
   },
 
   logout: () => {
+    console.log('User logged out');
     set({ 
       user: null, 
       isAuthenticated: false,
@@ -129,19 +141,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     
     try {
       // Simulate checking stored auth token
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       // For demo, start logged out
-      set({ isLoading: false, isAuthenticated: false });
+      console.log('Auth initialized: logged out');
+      set({ isLoading: false, isAuthenticated: false, user: null });
     } catch (error) {
-      set({ isLoading: false, isAuthenticated: false });
+      console.error('Auth initialization error:', error);
+      set({ isLoading: false, isAuthenticated: false, user: null });
     }
   },
 
   updateProfile: (updates: Partial<User>) => {
     const { user } = get();
     if (user) {
-      set({ user: { ...user, ...updates } });
+      const updatedUser = { ...user, ...updates };
+      console.log('Profile updated:', updatedUser.email);
+      set({ user: updatedUser });
     }
   },
 

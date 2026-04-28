@@ -22,12 +22,28 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
-    const isOnboarding = segments[0] === undefined || segments.length === 0;
+    const inTabsGroup = segments[0] === '(tabs)';
+    const isOnboarding = segments.length === 0 || segments[0] === 'index';
 
-    if (!isAuthenticated && !inAuthGroup && !isOnboarding) {
-      router.replace('/(auth)/login');
-    } else if (isAuthenticated && (inAuthGroup || isOnboarding)) {
-      router.replace('/(tabs)');
+    console.log('Auth Guard:', { isAuthenticated, segments, inAuthGroup, inTabsGroup, isOnboarding });
+
+    if (!isAuthenticated) {
+      // User is not authenticated
+      if (inTabsGroup) {
+        // Trying to access protected tabs, redirect to login
+        router.replace('/(auth)/login');
+      } else if (!inAuthGroup && !isOnboarding) {
+        // Trying to access other protected routes, redirect to login
+        router.replace('/(auth)/login');
+      }
+      // If already in auth group or onboarding, do nothing
+    } else {
+      // User is authenticated
+      if (inAuthGroup || isOnboarding) {
+        // Already logged in, redirect to tabs
+        router.replace('/(tabs)');
+      }
+      // If already in tabs or other protected routes, do nothing
     }
   }, [isAuthenticated, isLoading, segments]);
 
